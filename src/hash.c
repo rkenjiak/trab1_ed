@@ -33,7 +33,9 @@ uint32_t hashf2(const char* data) { //fnv1a_hash
 
 
 int hash_insere(thash * h, void * bucket){
+    int j = 0;
     uint32_t hash = hashf(h->get_key(bucket),SEED);
+    uint32_t hash2 = hashf2(h->get_key(bucket));
     int pos = hash %(h->max);
     /*se esta cheio*/
     if (h->max == (h->size+1)){
@@ -43,7 +45,8 @@ int hash_insere(thash * h, void * bucket){
         while(h->table[pos] != 0){
             if (h->table[pos] == h->deleted)
                 break;
-            pos = (pos+1)%h->max;
+            j++;
+            pos = (hash+j*hash2)%h->max;
         }
         h->table[pos] = (uintptr_t)bucket;
         h->size +=1;
@@ -67,17 +70,21 @@ int hash_constroi(thash * h,int nbuckets, char * (*get_key)(void *) ){
 
 
 void * hash_busca(thash  h, const char * key){
-    int pos = hashf(key,SEED) % (h.max);
+    int j = 0;
+    uint32_t hash = hashf(key,SEED);
+    uint32_t hash2 = hashf2(key);
+    int pos = hash %(h.max);
     void * ret = NULL;
     while(h.table[pos]!=0 && ret == NULL){
-        if (strcmp(h.get_key((void*)h.table[pos]),key) == 0){
-            ret = (void *) h.table[pos];
+        void *bucket = (void *)h.table[pos];
+        if (strcmp(h.get_key(bucket),key) == 0){
+            ret = bucket;
         }else{
-            pos = (pos+1) % h.max;
+            j++;
+            pos = (hash+j*hash2) % h.max;
         }
     }
     return ret;
-
 }
 
 int hash_remove(thash * h, const char * key){
