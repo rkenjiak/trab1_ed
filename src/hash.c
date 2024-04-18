@@ -88,7 +88,10 @@ void * hash_busca(thash  h, const char * key){
 }
 
 int hash_remove(thash * h, const char * key){
-    int pos = hashf(key,SEED) % (h->max);
+    int j = 0;
+    uint32_t hash = hashf(key,SEED);
+    uint32_t hash2 = hashf2(key);
+    int pos = hash % (h->max);
     while(h->table[pos]!=0){
         if (strcmp(h->get_key((void*)h->table[pos]),key) == 0){ /* se achei remove*/
             free((void *)h->table[pos]);
@@ -96,7 +99,8 @@ int hash_remove(thash * h, const char * key){
             h->size -= 1;
             return EXIT_SUCCESS;
         }else{
-            pos = (pos+1) % h->max;
+            j++;
+            pos = (hash+j*hash2) % h->max;
         }
     }
     return EXIT_FAILURE;
