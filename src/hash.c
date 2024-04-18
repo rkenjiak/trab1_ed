@@ -20,16 +20,14 @@ uint32_t hashf(const char* str, uint32_t h){
     return h;
 }
 
-uint32_t fnv1a_hash(const char* data) {
+uint32_t hashf2(const char* data) { //fnv1a_hash
     uint32_t hash = FNV_OFFSET_BASIS;
     const unsigned char* ptr = (const unsigned char*)data;
-
     while (*ptr != '\0') {
         hash ^= *ptr;
         hash *= FNV_PRIME;
         ++ptr;
     }
-
     return hash;
 }
 
