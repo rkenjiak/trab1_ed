@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#define SEED    0x12345678
 #include "../include/mylib.h"
+
+#define SEED    0x12345678
+#define FNV_PRIME 16777619
+#define FNV_OFFSET_BASIS 2166136261U
 
 uint32_t hashf(const char* str, uint32_t h){
     /* One-byte-at-a-time Murmur hash 
@@ -15,6 +18,19 @@ uint32_t hashf(const char* str, uint32_t h){
         h ^= h >> 15;
     }
     return h;
+}
+
+uint32_t fnv1a_hash(const char* data) {
+    uint32_t hash = FNV_OFFSET_BASIS;
+    const unsigned char* ptr = (const unsigned char*)data;
+
+    while (*ptr != '\0') {
+        hash ^= *ptr;
+        hash *= FNV_PRIME;
+        ++ptr;
+    }
+
+    return hash;
 }
 
 
