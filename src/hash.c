@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../include/mylib.h"
+#include "../include/libfacom.h"
 
 #define SEED    0x12345678
 #define FNV_PRIME 16777619
@@ -32,7 +32,7 @@ uint32_t hashf2(const char* data) { //fnv1a_hash
 }
 
 
-int hash_insere(thash * h, void * bucket){
+int hash_insere(thash * h, void * bucket, int *cont){
     int j = 0;
     uint32_t hash = hashf(h->get_key(bucket),SEED);
     uint32_t hash2 = hashf2(h->get_key(bucket));
@@ -51,6 +51,7 @@ int hash_insere(thash * h, void * bucket){
         h->table[pos] = (uintptr_t)bucket;
         h->size +=1;
     }
+    *cont = j;
     return EXIT_SUCCESS;
 }
 
