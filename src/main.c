@@ -22,6 +22,7 @@ char *get_key(void *reg) {
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
 void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *cont);
+void busca_municipio(thash *h);
 
 int main(){
     thash h;
@@ -43,9 +44,18 @@ int main(){
     printf("Houve %d insercoes.\n", sucess);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", maxColisoes, totColisoes);
 
-    while(escolha != 0){
-        printf("\nMenu:\n0. SAIDA\n1. 123\n2.1234\n");
+    while(1){
+        printf("\nMenu:\n0. SAIDA\n1. BUSCA\nDigite sua escolha: ");
         scanf("%d", &escolha);
+
+        if(escolha == 0){
+            break;
+        }else if(escolha == 1){
+            busca_municipio(&h);
+        }else{
+            printf("Escolha invalida, digite novamente.\n");
+        }
+
     }
 
     fclose(arquivo);
@@ -149,3 +159,26 @@ void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longi
     return municipio;
 }
 
+void busca_municipio(thash *h){
+    char leitura[10];
+    tmunicipio *buscado;
+    printf("Digite o Codigo IBGE a ser buscado: ");
+    scanf(" %s", leitura);
+
+    buscado = hash_busca(h, leitura);
+
+    if(buscado == NULL){
+        printf("Municipio nao encontrado no hash.\n");
+    } else{
+        printf("Informacoes relacionados ao codigo fornecido:\n");
+        printf("codigo_ibge: %s,\n", buscado->codigo_ibge);
+        printf("nome: %s,\n", buscado->nome);
+        printf("latitude: %f,\n", buscado->latitude);
+        printf("longitude: %f,\n", buscado->longitude);
+        printf("capital: %d,\n", buscado->capital);
+        printf("codigo_uf: %d,\n", buscado->codigo_uf);
+        printf("siafi_id: %d,\n", buscado->siafi_id);
+        printf("ddd: %d,\n", buscado->ddd);
+        printf("fuso_horario: %s\n", buscado->fuso_horario);
+    }
+}

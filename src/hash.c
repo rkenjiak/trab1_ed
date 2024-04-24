@@ -70,19 +70,19 @@ int hash_constroi(thash * h,int nbuckets, char * (*get_key)(void *) ){
 }
 
 
-void * hash_busca(thash  h, const char * key){
+void * hash_busca(thash  *h, const char * key){
     int j = 0;
     uint32_t hash = hashf(key,SEED);
     uint32_t hash2 = hashf2(key);
-    int pos = hash %(h.max);
+    int pos = hash %(h->max);
     void * ret = NULL;
-    while(h.table[pos]!=0 && ret == NULL){
-        void *bucket = (void *)h.table[pos];
-        if (strcmp(h.get_key(bucket),key) == 0){
+    while(h->table[pos]!=0 && ret == NULL){
+        void *bucket = (void *)h->table[pos];
+        if (strcmp(h->get_key(bucket),key) == 0){
             ret = bucket;
         }else{
             j++;
-            pos = (hash+j*hash2) % h.max;
+            pos = (hash+j*hash2) % h->max;
         }
     }
     return ret;
