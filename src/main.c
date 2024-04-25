@@ -19,10 +19,15 @@ typedef struct{
 char *get_key(void *reg) {
     return ((tmunicipio *)reg)->codigo_ibge;
 }
+/*
+int cmp(void *t1, void *t2){
+    return ((taluno *) t1)->rga - ((taluno *) t2)->rga ;
+}
+*/
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
 void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *cont);
-void busca_municipio(thash *h);
+void imprime_municipio(tmunicipio *municipio);
 
 int main(){
     thash h;
@@ -31,6 +36,7 @@ int main(){
     int totColisoes = 0;
     int sucess=0;
     int escolha=-1;
+    char leitura[10];
     
     hash_constroi(&h, nbuckets, get_key);
 
@@ -51,8 +57,10 @@ int main(){
         if(escolha == 0){
             break;
         }else if(escolha == 1){
-            busca_municipio(&h);
-        }else{
+            printf("Digite o Codigo IBGE a ser buscado: ");
+            scanf(" %s", leitura);
+            imprime_municipio((hash_busca(&h, leitura)));
+        }else {
             printf("Escolha invalida, digite novamente.\n");
         }
 
@@ -159,26 +167,19 @@ void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longi
     return municipio;
 }
 
-void busca_municipio(thash *h){
-    char leitura[10];
-    tmunicipio *buscado;
-    printf("Digite o Codigo IBGE a ser buscado: ");
-    scanf(" %s", leitura);
-
-    buscado = hash_busca(h, leitura);
-
-    if(buscado == NULL){
+void imprime_municipio(tmunicipio *municipio){
+    if(municipio == NULL){
         printf("Municipio nao encontrado no hash.\n");
     } else{
-        printf("Informacoes relacionados ao codigo fornecido:\n");
-        printf("codigo_ibge: %s,\n", buscado->codigo_ibge);
-        printf("nome: %s,\n", buscado->nome);
-        printf("latitude: %f,\n", buscado->latitude);
-        printf("longitude: %f,\n", buscado->longitude);
-        printf("capital: %d,\n", buscado->capital);
-        printf("codigo_uf: %d,\n", buscado->codigo_uf);
-        printf("siafi_id: %d,\n", buscado->siafi_id);
-        printf("ddd: %d,\n", buscado->ddd);
-        printf("fuso_horario: %s\n", buscado->fuso_horario);
+        printf("\nInformacoes relacionados ao codigo fornecido:\n");
+        printf("| codigo_ibge  | %s\n", municipio->codigo_ibge);
+        printf("| nome         | %s\n", municipio->nome);
+        printf("| latitude     | %.4f\n", municipio->latitude);
+        printf("| longitude    | %.4f\n", municipio->longitude);
+        printf("| capital      | %d\n", municipio->capital);
+        printf("| codigo_uf    | %d\n", municipio->codigo_uf);
+        printf("| siafi_id     | %d\n", municipio->siafi_id);
+        printf("| ddd          | %d\n", municipio->ddd);
+        printf("| fuso_horario | %s\n", municipio->fuso_horario);
     }
 }
