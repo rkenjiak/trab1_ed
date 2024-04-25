@@ -32,21 +32,19 @@ void imprime_municipio(tmunicipio *municipio);
 int main(){
     thash h;
     int nbuckets = 10000;
-    int maxColisoes = 0;
-    int totColisoes = 0;
-    int sucess=0;
+    int maxColisoes = 0, totColisoes = 0, sucess = 0;
     int escolha=-1;
-    char leitura[10];
-    
-    hash_constroi(&h, nbuckets, get_key);
+    char leitura[10]; 
 
     FILE *arquivo = fopen("./data/municipios.json", "r");
     if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
+        printf("Erro ao abrir o arquivo.\n");        
         return EXIT_FAILURE;
     }    
 
-    carregaHash(&h, arquivo, &maxColisoes, &totColisoes, &sucess);      
+    hash_constroi(&h, nbuckets, get_key);
+    carregaHash(&h, arquivo, &maxColisoes, &totColisoes, &sucess);  
+        
     printf("Houve %d insercoes.\n", sucess);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", maxColisoes, totColisoes);
 
@@ -63,7 +61,6 @@ int main(){
         }else {
             printf("Escolha invalida, digite novamente.\n");
         }
-
     }
 
     fclose(arquivo);
@@ -76,7 +73,6 @@ void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *c
     char linha[60];
     char *start;
     char *end;
-    int choice;
     int colisoes;
     tmunicipio temp;
 
@@ -143,8 +139,7 @@ void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *c
                 if(hash_insere(h, aloca_municipio(temp.codigo_ibge, temp.nome, temp.latitude, temp.longitude, 
                     temp.capital, temp.codigo_uf, temp.siafi_id, temp.ddd, temp.fuso_horario), &colisoes) == EXIT_SUCCESS) *cont +=1;
                 *totcolisoes += colisoes;
-                if(colisoes>*maxcolisoes) *maxcolisoes = colisoes;
-                                
+                if(colisoes>*maxcolisoes) *maxcolisoes = colisoes;                                
             }
         } else{
             break;
@@ -169,7 +164,7 @@ void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longi
 
 void imprime_municipio(tmunicipio *municipio){
     if(municipio == NULL){
-        printf("Municipio nao encontrado no hash.\n");
+        printf("Municipio nao encontrado na hash.\n");
     } else{
         printf("\nInformacoes relacionados ao codigo fornecido:\n");
         printf("| codigo_ibge  | %s\n", municipio->codigo_ibge);
