@@ -16,9 +16,14 @@ typedef struct{
     char fuso_horario[40];
 }tmunicipio;
 
-char *get_key(void *reg) {
+char *get_key_ibge(void *reg) {
     return ((tmunicipio *)reg)->codigo_ibge;
 }
+
+char *get_key_nome(void *reg) {
+    return ((tmunicipio *)reg)->nome;
+}
+
 /*
 int cmp(void *t1, void *t2){
     return ((taluno *) t1)->rga - ((taluno *) t2)->rga ;
@@ -26,13 +31,15 @@ int cmp(void *t1, void *t2){
 */
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
-void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *cont);
+void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2);
 void imprime_municipio(tmunicipio *municipio);
 
 int main(){
-    thash h;
+    thash h_ibge, h_nome;
+    tarv arv;
+
     int nbuckets = 10000;
-    int maxColisoes = 0, totColisoes = 0, sucess = 0;
+    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0;
     int escolha=-1;
     char leitura[10]; 
 
@@ -42,11 +49,11 @@ int main(){
         return EXIT_FAILURE;
     }    
 
-    hash_constroi(&h, nbuckets, get_key);
-    carregaHash(&h, arquivo, &maxColisoes, &totColisoes, &sucess);  
+    hash_constroi(&h_ibge, nbuckets, get_key_ibge);
+    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2);  
         
-    printf("Houve %d insercoes.\n", sucess);
-    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", maxColisoes, totColisoes);
+    printf("Houve %d insercoes.\n", sucess1);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max1, tot1);
 
     while(1){
         printf("\nMenu:\n0. SAIDA\n1. BUSCA\nDigite sua escolha: ");
@@ -57,24 +64,26 @@ int main(){
         }else if(escolha == 1){
             printf("Digite o Codigo IBGE a ser buscado: ");
             scanf(" %s", leitura);
-            imprime_municipio((hash_busca(&h, leitura)));
+            imprime_municipio((hash_busca(&h_ibge, leitura)));
         }else {
             printf("Escolha invalida, digite novamente.\n");
         }
     }
 
     fclose(arquivo);
-    hash_apaga(&h);
+    hash_apaga(&h_ibge);
     return EXIT_SUCCESS;
 }
 
 
-void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *cont){
+void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
+                int *tot1, int *c1, int *max2, int *tot2, int *c2){
     char linha[60];
     char *start;
     char *end;
     int colisoes;
     tmunicipio temp;
+    tmunicipio *temp2;
 
     while(1){
         if(fgets (linha, 60, arq)!=NULL) {
@@ -134,12 +143,21 @@ void carregaHash(thash *h, FILE *arq, int *maxcolisoes, int *totcolisoes, int *c
                 end = strrchr(start,'\"');
                 *end = '\n';
                 sscanf(start," %[^\n]", temp.fuso_horario);
+                
+                temp2 = aloca_municipio(temp.codigo_ibge, temp.nome, temp.latitude, temp.longitude, 
+                    temp.capital, temp.codigo_uf, temp.siafi_id, temp.ddd, temp.fuso_horario);
 
-                colisoes = 0;    
-                if(hash_insere(h, aloca_municipio(temp.codigo_ibge, temp.nome, temp.latitude, temp.longitude, 
-                    temp.capital, temp.codigo_uf, temp.siafi_id, temp.ddd, temp.fuso_horario), &colisoes) == EXIT_SUCCESS) *cont +=1;
-                *totcolisoes += colisoes;
-                if(colisoes>*maxcolisoes) *maxcolisoes = colisoes;                                
+                /*hash_ibge*/
+                colisoes = 0;
+                if(hash_insere(h_ibge, temp2, &colisoes) == EXIT_SUCCESS) *c1 +=1;
+                *tot1 += colisoes;
+                if(colisoes>*max1) *max1 = colisoes;
+
+                /*kd-tree*/
+
+                /*hash_nome*/ 
+                colisoes = 0;
+
             }
         } else{
             break;

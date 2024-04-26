@@ -45,3 +45,9 @@ void * abb_busca(tarv *parv,  void *reg){
 }
 
 
+void abb_apaga(tnode *node){
+    if (node == NULL) return;
+    abb_apaga(node->esq);
+    abb_apaga(node->dir);
+    free(node);
+}
