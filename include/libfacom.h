@@ -26,14 +26,16 @@ typedef struct _tnode{
     struct _tnode *dir;
 }tnode;
 
-typedef struct _abb{
+typedef struct _abb{ // 2 dimensoes
     tnode *raiz;
-    int (*cmp)(void* , void*);
+    float (*cmpx)(void* , void*);
+    float (*cmpy)(void* , void*);
 }tarv;
 
-void abb_constroi(tarv *parv, int (*cmp)(void *, void *));
-int abb_insere_node(tarv *parv, tnode **ppnode, void *reg);
-int abb_insere(tarv *parv, void *reg);
+float dist2(tarv *parv, void *t1, void *t2);
+void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *));
+int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth);
+int abb_insere(tarv *parv, void *reg, int depth);
 void * abb_busca_node(tarv *parv, tnode *pnode, void *reg);
 void * abb_busca(tarv *parv, void *reg);
 

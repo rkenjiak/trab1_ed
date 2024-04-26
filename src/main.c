@@ -19,16 +19,17 @@ typedef struct{
 char *get_key_ibge(void *reg) {
     return ((tmunicipio *)reg)->codigo_ibge;
 }
-
 char *get_key_nome(void *reg) {
     return ((tmunicipio *)reg)->nome;
 }
 
-/*
-int cmp(void *t1, void *t2){
-    return ((taluno *) t1)->rga - ((taluno *) t2)->rga ;
+float cmpy(void *t1, void *t2){
+    return ((tmunicipio *) t1)->latitude - ((tmunicipio *) t2)->latitude;
 }
-*/
+float cmpx(void *t1, void *t2){
+    return ((tmunicipio *) t1)->longitude - ((tmunicipio *) t2)->longitude;
+}
+
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
 void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2);
@@ -50,10 +51,13 @@ int main(){
     }    
 
     hash_constroi(&h_ibge, nbuckets, get_key_ibge);
+    hash_constroi(&h_nome, nbuckets, get_key_nome);
     carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2);  
         
-    printf("Houve %d insercoes.\n", sucess1);
+    printf("Houve %d insercoes ao utilizar codigo_ibge.\n", sucess1);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max1, tot1);
+    printf("Houve %d insercoes ao utilizar nome.\n", sucess2);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max2, tot2);
 
     while(1){
         printf("\nMenu:\n0. SAIDA\n1. BUSCA\nDigite sua escolha: ");
