@@ -36,7 +36,25 @@ float dist2(tarv *parv, void *t1, void *t2);
 void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *));
 int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth);
 int abb_insere(tarv *parv, void *reg, int depth);
-void * abb_busca_node(tarv *parv, tnode *pnode, void *reg);
-void * abb_busca(tarv *parv, void *reg);
+void * nearNeighbor_node(tarv *parv,tnode *pnode,void *reg, int depth);
+void * nearNeighbor(tarv *parv,  void *reg, int depth);
+void abb_apaga(tnode *node);
+
+/* heap */
+typedef struct _heap{
+    char key[10];
+    float distancia;
+}theap;
+
+void troca(theap *a, theap *b);
+int pai(int n);
+int filho_esq(int n);
+int filho_dir(int n);
+void desce(theap v[], int tam, int n);
+void constroi_heap(theap v[], int tam);
+void sobe(theap v[], int n);
+theap extrai_raiz(theap v[], int *tam);
+void altera_prioridade(theap *v, int tam, int n, theap new);
+
 
 #endif

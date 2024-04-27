@@ -51,16 +51,21 @@ int main(){
     }    
 
     hash_constroi(&h_ibge, nbuckets, get_key_ibge);
+    printf("Hash_ibge construido.\n");
     hash_constroi(&h_nome, nbuckets, get_key_nome);
-    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2);  
+    printf("Hash_nome construido.\n");
+    abb_constroi(&arv, cmpx, cmpy);
+    printf("Arvore construida.\n");
+    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2);
+    printf("Carregamento de dados concluido.\n\n");  
         
     printf("Houve %d insercoes ao utilizar codigo_ibge.\n", sucess1);
-    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max1, tot1);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max1, tot1);
     printf("Houve %d insercoes ao utilizar nome.\n", sucess2);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max2, tot2);
 
     while(1){
-        printf("\nMenu:\n0. SAIDA\n1. BUSCA\nDigite sua escolha: ");
+        printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n3. BUSCA_NOME\nDigite sua escolha: ");
         scanf("%d", &escolha);
 
         if(escolha == 0){
@@ -69,13 +74,22 @@ int main(){
             printf("Digite o Codigo IBGE a ser buscado: ");
             scanf(" %s", leitura);
             imprime_municipio((hash_busca(&h_ibge, leitura)));
+        }else if(escolha==3){
+            printf("Digite um nome a ser buscado: ");
+            scanf(" %s", leitura);
+            imprime_municipio((hash_busca(&h_nome, leitura)));
         }else {
             printf("Escolha invalida, digite novamente.\n");
         }
     }
 
     fclose(arquivo);
+    abb_apaga(arv.raiz);
+    printf("Arvore apagada.\n");
     hash_apaga(&h_ibge);
+    printf("Hash_ibge apagado.\n");
+    hash_apaga(&h_nome); ///possivel problema aqui
+    printf("Hash_nome apagado.\n");
     return EXIT_SUCCESS;
 }
 
@@ -158,9 +172,13 @@ void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
                 if(colisoes>*max1) *max1 = colisoes;
 
                 /*kd-tree*/
+                //if(abb_insere(arv, temp2, 0)== EXIT_SUCCESS);
 
                 /*hash_nome*/ 
                 colisoes = 0;
+                if(hash_insere(h_nome, temp2, &colisoes) == EXIT_SUCCESS) *c2 +=1;
+                *tot2 += colisoes;
+                if(colisoes>*max2) *max2 = colisoes;
 
             }
         } else{
