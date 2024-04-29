@@ -64,13 +64,14 @@ int main(){
     printf("Houve %d insercoes ao utilizar nome.\n", sucess2);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max2, tot2);
 
-    while(1){
+    while(escolha != 0){
         printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n3. BUSCA_NOME\nDigite sua escolha: ");
-        scanf("%d", &escolha);
-
-        if(escolha == 0){
-            break;
-        }else if(escolha == 1){
+        if(scanf(" %d", &escolha) != 1 ){
+            printf("Escolha invalida, digite novamente.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+        if(escolha == 1){
             printf("Digite o Codigo IBGE a ser buscado: ");
             scanf(" %s", leitura);
             imprime_municipio((hash_busca(&h_ibge, leitura)));
@@ -88,7 +89,7 @@ int main(){
     printf("Arvore apagada.\n");
     hash_apaga(&h_ibge);
     printf("Hash_ibge apagado.\n");
-    hash_apaga(&h_nome); ///possivel problema aqui
+    free(h_nome.table); 
     printf("Hash_nome apagado.\n");
     return EXIT_SUCCESS;
 }
