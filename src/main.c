@@ -32,7 +32,7 @@ float cmpx(void *t1, void *t2){
 
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
-void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2);
+void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2, int *totabb);
 void imprime_municipio(tmunicipio *municipio);
 
 int main(){
@@ -40,7 +40,7 @@ int main(){
     tarv arv;
 
     int nbuckets = 10000;
-    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0;
+    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0, totabb=0;
     int escolha=-1;
     char leitura[10]; 
 
@@ -56,19 +56,20 @@ int main(){
     printf("Hash_nome construido.\n");
     abb_constroi(&arv, cmpx, cmpy);
     printf("Arvore construida.\n");
-    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2);
+    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2,&totabb);
     printf("Carregamento de dados concluido.\n\n");  
         
     printf("Houve %d insercoes ao utilizar codigo_ibge.\n", sucess1);
     printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max1, tot1);
     printf("Houve %d insercoes ao utilizar nome.\n", sucess2);
-    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n", max2, tot2);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max2, tot2);
+    printf("Houve %d insercoes na kd-tree.\n", totabb);
 
     while(escolha != 0){
-        printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n3. BUSCA_NOME\nDigite sua escolha: ");
+        printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n2. TESTE\n3. BUSCA_NOME\nDigite sua escolha: ");
         if(scanf(" %d", &escolha) != 1 ){
             printf("Escolha invalida, digite novamente.\n");
-            while (getchar() != '\n');
+            while (getchar() != '\n'); //limpar buffer
             continue;
         }
         if(escolha == 1){
@@ -79,6 +80,9 @@ int main(){
             printf("Digite um nome a ser buscado: ");
             scanf(" %[^\n]", leitura);
             imprime_municipio((hash_busca(&h_nome, leitura)));
+        }else if(escolha == 2){
+            imprime_municipio((arv.raiz)->reg);
+            imprime_municipio(((arv.raiz)->esq)->reg);
         }else if(escolha != 0){
             printf("Escolha invalida, digite novamente.\n");
         }
@@ -96,7 +100,7 @@ int main(){
 
 
 void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
-                int *tot1, int *c1, int *max2, int *tot2, int *c2){
+                int *tot1, int *c1, int *max2, int *tot2, int *c2, int *totabb){
     char linha[60];
     char *start;
     char *end;
@@ -171,8 +175,10 @@ void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
                 if(hash_insere(h_ibge, temp2, &colisoes) == EXIT_SUCCESS) *c1 +=1;
                 *tot1 += colisoes;
                 if(colisoes>*max1) *max1 = colisoes;
-                /*kd-tree*/
-                abb_insere(arv, temp2, 0);
+                /*kd-tree*/                
+                colisoes = 0;
+                abb_insere(arv, temp2, 0, &colisoes);
+                *totabb+=colisoes;
 
                 /*hash_nome*/ 
                 colisoes = 0;

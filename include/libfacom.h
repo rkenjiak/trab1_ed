@@ -35,8 +35,8 @@ typedef struct _abb{ // 2 dimensoes
 float dist2(tarv *parv, void *t1, void *t2);
 void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *));
 tnode* newNode(void* reg);
-tnode * abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth);
-tnode * abb_insere(tarv *parv, void *reg, int depth);
+int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth, int *k);
+int abb_insere(tarv *parv, void *reg, int depth, int *k);
 void * nearNeighbor_node(tarv *parv,tnode *pnode,void *reg, int depth);
 void * nearNeighbor(tarv *parv,  void *reg, int depth);
 void abb_apaga(tnode *node);
