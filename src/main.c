@@ -79,7 +79,7 @@ int main(){
             printf("Digite um nome a ser buscado: ");
             scanf(" %[^\n]", leitura);
             imprime_municipio((hash_busca(&h_nome, leitura)));
-        }else {
+        }else if(escolha != 0){
             printf("Escolha invalida, digite novamente.\n");
         }
     }
@@ -171,9 +171,8 @@ void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
                 if(hash_insere(h_ibge, temp2, &colisoes) == EXIT_SUCCESS) *c1 +=1;
                 *tot1 += colisoes;
                 if(colisoes>*max1) *max1 = colisoes;
-
                 /*kd-tree*/
-                //if(abb_insere(arv, temp2, 0) == EXIT_SUCCESS);
+                abb_insere(arv, temp2, 0);
 
                 /*hash_nome*/ 
                 colisoes = 0;
