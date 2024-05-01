@@ -5,11 +5,11 @@
 #include"../include/libfacom.h"
 #include<math.h>
 
-void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *), float(*distancia)(void*,void*), char*(*get_key)(void *)){
+void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *), float(*distancia2)(void*,void*), char*(*get_key)(void *)){
     parv->raiz = NULL;
     parv->cmpx  = cmpx;
     parv->cmpy  = cmpy;
-	parv->distancia = distancia;
+	parv->distancia2 = distancia2;
 	parv->get_key = get_key;
 }
 
@@ -63,21 +63,21 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
             nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
         }
 	}
-	float currentDist = parv->distancia(pnode->reg,reg);
-	float bestDist = heap[0].distancia;
+	float currentDist = parv->distancia2(pnode->reg,reg);
+	float bestDist = heap[0].distancia2;
 	if(currentDist<bestDist){
 		theap new;
-		new.distancia = currentDist;
+		new.distancia2 = currentDist;
 		strcpy(new.key,parv->get_key(pnode->reg));
 		altera_prioridade(heap,tam,0,new);
 	}
-	if(dim == 1 && currentDist>fabs(parv->cmpy(pnode->reg,reg))){
+	if(dim == 1 && currentDist>pow(parv->cmpy(pnode->reg,reg),2)){  ///possivel bug pois utiliza-se dist^2
 		if (parv->cmpx((pnode)->reg,reg) > 0){ /* esquerda, oposto */
             nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
         }else{ /* direita, oposto */
             nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);
         }
-	}else if(dim == 0 && currentDist>fabs(parv->cmpx(pnode->reg,reg))){
+	}else if(dim == 0 && currentDist>pow(parv->cmpx(pnode->reg,reg),2)){
 		if (parv->cmpy((pnode)->reg,reg) > 0){ /* esquerda, oposto */
             nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
         }else{ /* direita, oposto*/
@@ -116,9 +116,9 @@ void desce(theap v[], int tam, int n) {//////////////////////////
 	int esq = filho_esq(n);
 	int dir = filho_dir(n);
 
-	if (esq < tam && v[esq].distancia > v[maior].distancia) 
+	if (esq < tam && v[esq].distancia2 > v[maior].distancia2) 
 		maior = esq;
-	if (dir < tam && v[dir].distancia > v[maior].distancia)
+	if (dir < tam && v[dir].distancia2 > v[maior].distancia2)
 		maior = dir;
 
 	if (maior != n) {
@@ -136,7 +136,7 @@ void constroi_heap(theap v[], int tam) {
 void sobe(theap v[], int n) {
 	int p = pai(n);
 
-	if (v[p].distancia < v[n].distancia) {/////////////////////////
+	if (v[p].distancia2 < v[n].distancia2) {/////////////////////////
 		troca(&v[n], &v[p]);
 		sobe(v, p);
 	}
@@ -154,9 +154,9 @@ void altera_prioridade(theap *v, int tam, int n, theap new) { // ?
 	theap anterior = v[n];
 	v[n] = new;
 
-	if (new.distancia > anterior.distancia)
+	if (new.distancia2 > anterior.distancia2)
 		sobe(v, n);
-	if (new.distancia < anterior.distancia)
+	if (new.distancia2 < anterior.distancia2)
 		desce(v, tam, n);
 }
 

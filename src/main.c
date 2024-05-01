@@ -30,7 +30,7 @@ float cmpy(void *t1, void *t2){
 float cmpx(void *t1, void *t2){
     return ((tmunicipio *) t1)->longitude - ((tmunicipio *) t2)->longitude;
 }
-float distancia(void *t1, void *t2){
+float distancia2(void *t1, void *t2){
     float dlat = cmpy(t1,t2);
     float dlong = cmpx(t1,t2);
     return dlat*dlat + dlong*dlong; // retorna dist^2
@@ -65,7 +65,7 @@ int main(){
     printf("Hash_ibge construido.\n");
     hash_constroi(&h_nome, nbuckets, get_key_nome);
     printf("Hash_nome construido.\n");
-    abb_constroi(&arv, cmpx, cmpy, distancia, get_key_ibge);
+    abb_constroi(&arv, cmpx, cmpy, distancia2, get_key_ibge);
     printf("Arvore construida.\n");
     carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2,&totabb);
     printf("Carregamento de dados concluido.\n\n");  
@@ -114,11 +114,11 @@ int main(){
             }
         }else if(escolha==3){
             if(heap == NULL){
-                printf("Nao ha vizinhos salvos na memoria. Retornando ao MENU\n");
+                printf("Nao ha vizinhos salvos na memoria. Retornando ao MENU.\n");
             }else{
                 for(int k=1;k<n+1;k++){
                     imprime_municipio(hash_busca(&h_ibge, heap[k].key));
-                    printf("| distancia    | %f\n\n", heap[k].distancia);
+                    printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
                 }
 
             }
@@ -263,7 +263,7 @@ void imprime_municipio(tmunicipio *municipio){
 
 void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n){    
     for(int i=0;i<n+1 ;i++){
-        heap[i].distancia = 3.40282347E+38;
+        heap[i].distancia2 = 3.40282347E+38;
         *(heap[i].key) = '\0';
     }
     nearNeighbor(arv,heap,reg->codigo_ibge,0,n+1);
@@ -275,7 +275,6 @@ void imprimeVetor(theap heap[], int tam){
     printf("Cidade Selecionada: %s.\n", heap[0].key);
     printf("|  | Distancia  | cod_ibge\n");
     for(int i = 1; i<tam; i++){
-        printf("|%2.d| %f   | %s\n",i, heap[i].distancia, heap[i].key);
+        printf("|%2.d| %f   | %s\n",i, sqrtf(heap[i].distancia2), heap[i].key);
     }
-
 }

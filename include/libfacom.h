@@ -30,16 +30,16 @@ typedef struct _abb{ // 2 dimensoes
     tnode *raiz;
     float (*cmpx)(void* , void*);
     float (*cmpy)(void* , void*);
-    float (*distancia)(void*, void*);
+    float (*distancia2)(void*, void*);
     char *(*get_key)(void *);
 }tarv;
 
 typedef struct _heap{
     char key[20];
-    float distancia;
+    float distancia2;
 }theap;
 
-void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *), float(*distancia)(void*,void*), char *(*get_key)(void *));
+void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *), float(*distancia2)(void*,void*), char *(*get_key)(void *));
 tnode* newNode(void* reg);
 int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth, int *k);
 int abb_insere(tarv *parv, void *reg, int depth, int *k);
