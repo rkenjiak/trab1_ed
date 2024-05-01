@@ -29,19 +29,26 @@ float cmpy(void *t1, void *t2){
 float cmpx(void *t1, void *t2){
     return ((tmunicipio *) t1)->longitude - ((tmunicipio *) t2)->longitude;
 }
+float distancia(void *t1, void *t2){
+    float dlat = cmpy(t1,t2);
+    float dlong = cmpx(t1,t2);
+    return dlat*dlat + dlong*dlong; // retorna dist^2
+}
 
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
 void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2, int *totabb);
 void imprime_municipio(tmunicipio *municipio);
+void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n);
 
 int main(){
     thash h_ibge, h_nome;
     tarv arv;
+    theap heap;
 
-    int nbuckets = 10000;
+    int nbuckets = 10007;
     int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0, totabb=0;
-    int escolha=-1;
+    int escolha=-1, n;
     char leitura[10]; 
 
     FILE *arquivo = fopen("./data/municipios.json", "r");
@@ -54,7 +61,7 @@ int main(){
     printf("Hash_ibge construido.\n");
     hash_constroi(&h_nome, nbuckets, get_key_nome);
     printf("Hash_nome construido.\n");
-    abb_constroi(&arv, cmpx, cmpy);
+    abb_constroi(&arv, cmpx, cmpy, distancia, get_key_ibge);
     printf("Arvore construida.\n");
     carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2,&totabb);
     printf("Carregamento de dados concluido.\n\n");  
@@ -66,7 +73,7 @@ int main(){
     printf("Houve %d insercoes na kd-tree.\n", totabb);
 
     while(escolha != 0){
-        printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n2. TESTE\n3. BUSCA_NOME\nDigite sua escolha: ");
+        printf("\nMenu:\n0. SAIDA\n1. BUSCA_IBGE\n2. BUSCA VIZINHOS\n3. BUSCA_NOME\nDigite sua escolha: ");
         if(scanf(" %d", &escolha) != 1 ){
             printf("Escolha invalida, digite novamente.\n");
             while (getchar() != '\n'); //limpar buffer
@@ -81,8 +88,12 @@ int main(){
             scanf(" %[^\n]", leitura);
             imprime_municipio((hash_busca(&h_nome, leitura)));
         }else if(escolha == 2){
-            imprime_municipio((arv.raiz)->reg);
-            imprime_municipio(((arv.raiz)->esq)->reg);
+            printf("Digite o codigo IBGE da cidade que voce deseja seus vizinhos: ");
+            scanf(" %[^\n]", leitura);
+            printf("Digite o numero n de vizinhos a serem buscados: ");
+            scanf("%d", &n);
+            tmunicipio *buscando = hash_busca(&h_ibge, leitura);
+            buscaVizinhos(&arv, &h_ibge, &heap, buscando, n);
         }else if(escolha != 0){
             printf("Escolha invalida, digite novamente.\n");
         }
@@ -223,4 +234,21 @@ void imprime_municipio(tmunicipio *municipio){
         printf("| ddd          | %d\n", municipio->ddd);
         printf("| fuso_horario | %s\n", municipio->fuso_horario);
     }
+}
+
+void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n){
+    heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
+    for(int i=0;i<n+1 ;i++){
+        heap[i].distancia = 3.40282347E+38;
+        *(heap[i].key) = '\0';
+    }
+    nearNeighbor(arv,heap,reg->codigo_ibge,0,n+1);
+
+    heap_sort(heap,n+1);
+
+    for(int j=1;j<n+1;j++){
+        imprime_municipio(hash_busca(h, heap[j].key));
+        printf("| distancia    | %f\n\n", heap[j].distancia);
+    }    
+    free(heap);
 }
