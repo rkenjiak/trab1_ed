@@ -20,30 +20,29 @@ tnode* newNode(void* reg){
     return temp;
 }
 
-int abb_insere_node(tarv *parv,tnode **ppnode,void *reg, int depth, int *k){
+int abb_insere_node(tarv *parv,tnode **ppnode,void *reg, int depth){
 	int dim = depth % 2;
     if (*ppnode == NULL){
-		*k = *k +1;
         *ppnode = newNode(reg);	
 		if(*ppnode == NULL) return EXIT_FAILURE;	 
     }else if(dim == 0){ //comparar latitude
         if (parv->cmpy((*ppnode)->reg,reg) > 0){ /* esquerda*/
-            abb_insere_node(parv,&((*ppnode)->esq),reg,depth+1, k);
+            abb_insere_node(parv,&((*ppnode)->esq),reg,depth+1);
         }else{ /*direita*/
-            abb_insere_node(parv,&((*ppnode)->dir),reg,depth+1, k);
+            abb_insere_node(parv,&((*ppnode)->dir),reg,depth+1);
         }
     }else if (dim == 1){ //comparar longitude
         if (parv->cmpx((*ppnode)->reg,reg) > 0){ /* esquerda*/
-            abb_insere_node(parv,&((*ppnode)->esq),reg,depth+1, k);
+            abb_insere_node(parv,&((*ppnode)->esq),reg,depth+1);
         }else{ /*direita*/
-            abb_insere_node(parv,&((*ppnode)->dir),reg,depth+1, k);
+            abb_insere_node(parv,&((*ppnode)->dir),reg,depth+1);
         }
 	}	
 	return EXIT_SUCCESS;
 }
 
-int abb_insere(tarv *parv,  void *reg, int depth, int *k){
-    return abb_insere_node(parv,&parv->raiz,reg, depth, k);
+int abb_insere(tarv *parv,  void *reg, int depth){
+    return abb_insere_node(parv,&parv->raiz,reg, depth);
 }
 
 

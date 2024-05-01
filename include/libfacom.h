@@ -11,14 +11,6 @@ typedef struct {
         char *(*get_key)(void *);
 }thash;
 
-uint32_t hashf(const char* str, uint32_t h);
-uint32_t hashf2(const char* data);
-int hash_insere(thash *h, void *bucket, int *cont);
-int hash_constroi(thash *h,int nbuckets, char *(*get_key)(void *));
-void * hash_busca(thash *h, const char *key);
-int hash_remove(thash *h, const char *key);
-void hash_apaga(thash *h);
-
 /* ABB */
 typedef struct _tnode{
     void *reg;
@@ -34,22 +26,31 @@ typedef struct _abb{ // 2 dimensoes
     char *(*get_key)(void *);
 }tarv;
 
+ /* heap para kdtree 2d */
 typedef struct _heap{
     char key[20];
     float distancia2;
 }theap;
 
+/* funcoes para hash */
+uint32_t hashf(const char* str, uint32_t h);
+uint32_t hashf2(const char* data);
+int hash_insere(thash *h, void *bucket, int *cont);
+int hash_constroi(thash *h,int nbuckets, char *(*get_key)(void *));
+void * hash_busca(thash *h, const char *key);
+int hash_remove(thash *h, const char *key);
+void hash_apaga(thash *h);
+
+/* funcoes para abb/kdtree */
 void abb_constroi(tarv *parv, float (*cmpx)(void *, void *), float (*cmpy)(void *, void *), float(*distancia2)(void*,void*), char *(*get_key)(void *));
 tnode* newNode(void* reg);
-int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth, int *k);
-int abb_insere(tarv *parv, void *reg, int depth, int *k);
+int abb_insere_node(tarv *parv, tnode **ppnode, void *reg, int depth);
+int abb_insere(tarv *parv, void *reg, int depth);
 void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth, int n);
 void nearNeighbor(tarv *parv, theap *heap,  void *reg, int depth, int n);
 void abb_apaga(tnode *node);
 
-/* heap */
-
-
+/* funcoes para heap que utliza a struct acima */
 void troca(theap *a, theap *b);
 int pai(int n);
 int filho_esq(int n);
@@ -60,6 +61,5 @@ void sobe(theap v[], int n);
 theap extrai_raiz(theap v[], int *tam);
 void altera_prioridade(theap *v, int tam, int n, theap new);
 void heap_sort(theap v[], int tam);
-
 
 #endif

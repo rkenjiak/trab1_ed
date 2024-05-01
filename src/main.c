@@ -36,12 +36,11 @@ float distancia2(void *t1, void *t2){
     return dlat*dlat + dlong*dlong; // retorna dist^2
 }
 
-
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital, int codigo_uf, int siafi_id, int ddd, char *fuso_horario);
-void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1, int *tot1, int *c1, int *max2, int *tot2, int *c2, int *totabb);
+void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq);
 void imprime_municipio(tmunicipio *municipio);
 void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n);
-void imprimeVetor(theap heap[], int tam);
+void imprimeVetor(theap heap[], int n);
 
 int main(){
     thash h_ibge, h_nome;
@@ -50,9 +49,9 @@ int main(){
     tmunicipio *buscando;
 
     int nbuckets = 10007;
-    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0, totabb=0;
+    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0, totabb=0; //contadores
     int escolha=-1, n, escolha2;
-    char leitura[10]; 
+    char leitura[40]; 
     char caracter;
 
     FILE *arquivo = fopen("./data/municipios.json", "r");
@@ -67,60 +66,56 @@ int main(){
     printf("Hash_nome construido.\n");
     abb_constroi(&arv, cmpx, cmpy, distancia2, get_key_ibge);
     printf("Arvore construida.\n");
-    carregaDados(&h_ibge, &arv, &h_nome, arquivo, &max1, &tot1, &sucess1, &max2, &tot2, &sucess2,&totabb);
-    printf("Carregamento de dados concluido.\n\n");  
-        
-    printf("Houve %d insercoes ao utilizar codigo_ibge.\n", sucess1);
-    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max1, tot1);
-    printf("Houve %d insercoes ao utilizar nome.\n", sucess2);
-    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max2, tot2);
-    printf("Houve %d insercoes na kd-tree.\n", totabb);
+    carregaDados(&h_ibge, &arv, &h_nome, arquivo);    
 
-    while(escolha != 0){
+    while(escolha != 0){ // MENU
         printf("\nMENU:\n0. SAIDA\n1. BUSCA_IBGE (TAREFA 1)\n2. BUSCA VIZINHOS(TAREFA 2)\n3. DADOS VIZINHOS(TAREFA 3)\nDigite sua escolha: ");
-        if(scanf(" %d", &escolha) != 1 ){
+        if(scanf(" %d", &escolha) != 1 ){ //1 eh o valor esperado ao ler 1 numero
             printf("Escolha invalida, digite novamente.\n");
             while (getchar() != '\n'); //limpar buffer
             continue;
         }
-        if(escolha == 1){
+        if(escolha == 1){ /* Busca e mostra os dados de uma cidade */
             printf("Digite o Codigo IBGE a ser buscado: ");
             scanf(" %s", leitura);
             buscando = hash_busca(&h_ibge, leitura);
             if(buscando == NULL) printf("Codigo nao encontrado na hash.\n");            
             else imprime_municipio(buscando);
-        }else if(escolha == 2){
+        }else if(escolha == 2){ /* digita o cod_ibge e n, retornando um vetor com os n vizinhos mais proximos */
             if(heap == NULL){
                 printf("Digite o codigo IBGE da cidade para procurar seus vizinhos: ");
                 scanf(" %[^\n]", leitura);
                 printf("Digite o numero n de vizinhos a serem buscados: ");            
-                buscando = hash_busca(&h_ibge, leitura);
+                buscando = hash_busca(&h_ibge, leitura); //deveria ser h_nome, mas ha problema de cidades cm msm nome, entao utilizei cod_ibge
                 if(scanf("%d", &n) != 1 || buscando == NULL) {
                     printf("Entrada invalida! Retornando ao MENU.\n");
                     continue;
                 }
                 heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
                 buscaVizinhos(&arv, &h_ibge, heap, buscando, n);
-                imprimeVetor(heap, n+1);
-            }else{
+                imprimeVetor(heap, n);
+            }else{ ////////////////////////////////////////// arrumar
                 printf("Memoria ocupada, deseja vizualizar(digite 1) ou limpar a memoria(digite 0)? ");
-                scanf(" %d", &escolha2);
-                if(escolha2==0){
+                if(scanf("%d%c", &escolha2, &caracter) != 2 || caracter != '\n'){
+                    while (getchar() != '\n');
+                    printf("Escolha invalida. Retornando ao MENU.\n");
+                }else if(escolha2==0){
                     free(heap);
                     heap = NULL;
                 }else if(escolha2==1){
-                    imprimeVetor(heap,n+1);
+                    imprimeVetor(heap,n);
+                }else{
+                    printf("Escolha invalida. Retornando ao MENU.\n");
                 }
-            }
-        }else if(escolha==3){
+            }            
+        }else if(escolha==3){ /* se a lista heap estiver preenchida, busca os dados destas cidades */
             if(heap == NULL){
                 printf("Nao ha vizinhos salvos na memoria. Retornando ao MENU.\n");
             }else{
-                for(int k=1;k<n+1;k++){
+                for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
                     imprime_municipio(hash_busca(&h_ibge, heap[k].key));
                     printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
                 }
-
             }
         }else if(escolha != 0){
             printf("Escolha invalida, digite novamente.\n");
@@ -132,19 +127,20 @@ int main(){
     printf("Arvore apagada.\n");
     hash_apaga(&h_ibge);
     printf("Hash_ibge apagado.\n");
-    free(h_nome.table); 
+    free(h_nome.table); // utilizar hash_apaga causava problema de double free()
     printf("Hash_nome apagado.\n");
     if(heap!=NULL) free(heap);
     return EXIT_SUCCESS;
 }
 
 
-void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
-                int *tot1, int *c1, int *max2, int *tot2, int *c2, int *totabb){
+void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq){
     char linha[60];
     char *start;
     char *end;
     int colisoes;
+    int max1=0, tot1=0, max2=0, tot2=0; //contadores colisoes
+    int totabb=0, c1=0 , c2=0; //insercoes realizadas
     tmunicipio temp;
     tmunicipio *temp2;
 
@@ -212,25 +208,29 @@ void carregaDados(thash *h_ibge,tarv *arv, thash *h_nome, FILE *arq, int *max1,
 
                 /*hash_ibge*/
                 colisoes = 0;
-                if(hash_insere(h_ibge, temp2, &colisoes) == EXIT_SUCCESS) *c1 +=1;
-                *tot1 += colisoes;
-                if(colisoes>*max1) *max1 = colisoes;
-                /*kd-tree*/                
-                colisoes = 0;
-                abb_insere(arv, temp2, 0, &colisoes);
-                *totabb+=colisoes;
+                if(hash_insere(h_ibge, temp2, &colisoes) == EXIT_SUCCESS) c1 += 1;
+                tot1 += colisoes;
+                if(colisoes>max1) max1 = colisoes;
+
+                /*kd-tree*/
+                if(abb_insere(arv, temp2, 0) == EXIT_SUCCESS) totabb += 1;
 
                 /*hash_nome*/ 
                 colisoes = 0;
-                if(hash_insere(h_nome, temp2, &colisoes) == EXIT_SUCCESS) *c2 +=1;
-                *tot2 += colisoes;
-                if(colisoes>*max2) *max2 = colisoes;
-
+                if(hash_insere(h_nome, temp2, &colisoes) == EXIT_SUCCESS) c2 += 1;
+                tot2 += colisoes;
+                if(colisoes>max2) max2 = colisoes;
             }
         } else{
             break;
         }
     }
+    printf("Carregamento de dados concluido.\n\n");  
+    printf("Houve %d insercoes ao utilizar codigo_ibge.\n", c1);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max1, tot1);
+    printf("Houve %d insercoes ao utilizar nome.\n", c2);
+    printf("Houve no maximo %d colisoes em uma insercao.\nHouve %d totais colisoes.\n\n", max2, tot2);
+    printf("Houve %d insercoes na kd-tree.\n", totabb);
 }
 
 void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longitude, int capital,
@@ -257,24 +257,26 @@ void imprime_municipio(tmunicipio *municipio){
     printf("| codigo_uf    | %d\n", municipio->codigo_uf);
     printf("| siafi_id     | %d\n", municipio->siafi_id);
     printf("| ddd          | %d\n", municipio->ddd);
-    printf("| fuso_horario | %s\n", municipio->fuso_horario);
-    
+    printf("| fuso_horario | %s\n", municipio->fuso_horario);    
 }
 
+/* busca os n vizinhos e guarda o resultado em um vetor de n+1 posicoes, em ordem crescente de distancia,
+   a propria cidade deverá estar em heap[0] apos o heap_sort */
 void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n){    
     for(int i=0;i<n+1 ;i++){
         heap[i].distancia2 = 3.40282347E+38;
         *(heap[i].key) = '\0';
     }
     nearNeighbor(arv,heap,reg->codigo_ibge,0,n+1);
-
     heap_sort(heap,n+1);      
 }
 
-void imprimeVetor(theap heap[], int tam){
+/* imprime as as distancias e cod_ibge dos n vizinhos mais proximos, nota-se que utilizou-se
+   uma heap com n+1 posicoes */
+void imprimeVetor(theap heap[], int n){
     printf("Cidade Selecionada: %s.\n", heap[0].key);
     printf("|  | Distancia  | cod_ibge\n");
-    for(int i = 1; i<tam; i++){
+    for(int i = 1; i<n+1; i++){ //i==0 esta a propria cidade
         printf("|%2.d| %f   | %s\n",i, sqrtf(heap[i].distancia2), heap[i].key);
     }
 }
