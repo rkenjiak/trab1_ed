@@ -38,6 +38,7 @@ uint32_t hashf2(const char* data);
 int hash_insere(thash *h, void *bucket, int *cont);
 int hash_constroi(thash *h,int nbuckets, char *(*get_key)(void *));
 void * hash_busca(thash *h, const char *key);
+void * hash_busca_ate_0(thash  *h, const char * key);
 int hash_remove(thash *h, const char *key);
 void hash_apaga(thash *h);
 
@@ -50,7 +51,7 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
 void nearNeighbor(tarv *parv, theap *heap,  void *reg, int depth, int n);
 void abb_apaga(tnode *node);
 
-/* funcoes para heap que utliza a struct acima */
+/* funcoes para heap que utliza a struct theap acima */
 void troca(theap *a, theap *b);
 int pai(int n);
 int filho_esq(int n);

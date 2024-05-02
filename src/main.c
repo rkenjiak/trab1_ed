@@ -49,7 +49,6 @@ int main(){
     tmunicipio *buscando;
 
     int nbuckets = 10007;
-    int max1 = 0, tot1 = 0, sucess1 = 0, max2 = 0, tot2 = 0, sucess2 = 0, totabb=0; //contadores
     int escolha=-1, n, escolha2;
     char leitura[40]; 
     char caracter;
@@ -69,7 +68,7 @@ int main(){
     carregaDados(&h_ibge, &arv, &h_nome, arquivo);    
 
     while(escolha != 0){ // MENU
-        printf("\nMENU:\n0. SAIDA\n1. BUSCA_IBGE (TAREFA 1)\n2. BUSCA VIZINHOS(TAREFA 2)\n3. DADOS VIZINHOS(TAREFA 3)\nDigite sua escolha: ");
+        printf("\nMENU:\n0. SAIDA\n1. BUSCA_IBGE (TAREFA 1)\n2. BUSCA VIZINHOS(TAREFA 2)\n3. DADOS VIZINHOS(TAREFA 3)\n4. BUSCA NOME\nDigite sua escolha: ");
         if(scanf(" %d", &escolha) != 1 ){ //1 eh o valor esperado ao ler 1 numero
             printf("Escolha invalida, digite novamente.\n");
             while (getchar() != '\n'); //limpar buffer
@@ -86,7 +85,7 @@ int main(){
                 printf("Digite o codigo IBGE da cidade para procurar seus vizinhos: ");
                 scanf(" %[^\n]", leitura);
                 printf("Digite o numero n de vizinhos a serem buscados: ");            
-                buscando = hash_busca(&h_ibge, leitura); //deveria ser h_nome, mas ha problema de cidades cm msm nome, entao utilizei cod_ibge
+                buscando = hash_busca(&h_ibge, leitura);
                 if(scanf("%d", &n) != 1 || buscando == NULL) {
                     printf("Entrada invalida! Retornando ao MENU.\n");
                     continue;
@@ -94,7 +93,7 @@ int main(){
                 heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
                 buscaVizinhos(&arv, &h_ibge, heap, buscando, n);
                 imprimeVetor(heap, n);
-            }else{ ////////////////////////////////////////// arrumar
+            }else{ 
                 printf("Memoria ocupada, deseja vizualizar(digite 1) ou limpar a memoria(digite 0)? ");
                 if(scanf("%d%c", &escolha2, &caracter) != 2 || caracter != '\n'){
                     while (getchar() != '\n');
@@ -109,7 +108,7 @@ int main(){
                 }
             }            
         }else if(escolha==3){ /* se a lista heap estiver preenchida, busca os dados destas cidades */
-            if(heap == NULL){
+            if(heap == NULL){ /* deveria-se usar nome na n_nome e obter cod_ibge e dai utilizar este na tarefa 2 para conseguir os dados */
                 printf("Nao ha vizinhos salvos na memoria. Retornando ao MENU.\n");
             }else{
                 for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
@@ -117,6 +116,12 @@ int main(){
                     printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
                 }
             }
+        }else if(escolha==4){
+            printf("Digite o nome a ser buscado: ");
+            scanf(" %[^\n]", leitura);
+            buscando = hash_busca(&h_nome, leitura);
+            if(buscando == NULL) printf("Codigo nao encontrado na hash.\n");            
+            else imprime_municipio(buscando);
         }else if(escolha != 0){
             printf("Escolha invalida, digite novamente.\n");
         }
