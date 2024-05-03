@@ -47,9 +47,10 @@ int main(){
     tarv arv;
     theap *heap = NULL;
     tmunicipio *buscando;
+    tmunicipio *vetorMunicipio;
 
-    int nbuckets = 10007;
-    int escolha=-1, n, escolha2;
+    int nbuckets = 15013;
+    int escolha=-1, n, i, escolha2, qtd;
     char leitura[40]; 
     char caracter;
 
@@ -67,9 +68,9 @@ int main(){
     printf("Arvore construida.\n");
     carregaDados(&h_ibge, &arv, &h_nome, arquivo);    
 
-    while(escolha != 0){ // MENU
-        printf("\nMENU:\n0. SAIDA\n1. BUSCA_IBGE (TAREFA 1)\n2. BUSCA VIZINHOS(TAREFA 2)\n3. DADOS VIZINHOS(TAREFA 3)\n4. BUSCA NOME\nDigite sua escolha: ");
-        if(scanf(" %d", &escolha) != 1 ){ //1 eh o valor esperado ao ler 1 numero
+    while(1){ // MENU
+        printf("\nMENU:\n0 - SAIDA\n1 - BUSCA_IBGE (TAREFA 1)\n2 - BUSCA VIZINHOS (TAREFA 2)\n3 - DADOS VIZINHOS (TAREFA 3)\n\nDigite sua escolha: ");
+        if(scanf("%d", &escolha) != 1 ){ //1 eh o valor esperado ao ler 1 numero
             printf("Escolha invalida, digite novamente.\n");
             while (getchar() != '\n'); //limpar buffer
             continue;
@@ -80,49 +81,92 @@ int main(){
             buscando = hash_busca(&h_ibge, leitura);
             if(buscando == NULL) printf("Codigo nao encontrado na hash.\n");            
             else imprime_municipio(buscando);
-        }else if(escolha == 2){ /* digita o cod_ibge e n, retornando um vetor com os n vizinhos mais proximos */
-            if(heap == NULL){
-                printf("Digite o codigo IBGE da cidade para procurar seus vizinhos: ");
-                scanf(" %[^\n]", leitura);
-                printf("Digite o numero n de vizinhos a serem buscados: ");            
-                buscando = hash_busca(&h_ibge, leitura);
-                if(scanf("%d", &n) != 1 || buscando == NULL) {
-                    printf("Entrada invalida! Retornando ao MENU.\n");
+        }else if(escolha == 2){ /* digita o cod_ibge e n, retornando um vetor com os n vizinhos mais proximos */            
+            printf("Digite o codigo IBGE da cidade para procurar seus vizinhos: ");
+            scanf(" %[^\n]", leitura);                
+            buscando = hash_busca(&h_ibge, leitura);                    
+            while(1){
+                if(buscando == NULL){
+                    printf("Codigo nao encontrado na hash.\n");
+                    break;                
+                }                    
+                printf("Digite o numero n de vizinhos a serem buscados(0 para sair): ");            
+                if(scanf("%d", &n) != 1 || n<0) {
+                    printf("Entrada invalida! Digite novamente.\n");
+                    while (getchar() != '\n');
                     continue;
                 }
+                if(n==0) break;
                 heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
                 buscaVizinhos(&arv, &h_ibge, heap, buscando, n);
                 imprimeVetor(heap, n);
-            }else{ 
-                printf("Memoria ocupada, deseja vizualizar(digite 1) ou limpar a memoria(digite 0)? ");
-                if(scanf("%d%c", &escolha2, &caracter) != 2 || caracter != '\n'){
-                    while (getchar() != '\n');
-                    printf("Escolha invalida. Retornando ao MENU.\n");
-                }else if(escolha2==0){
-                    free(heap);
-                    heap = NULL;
-                }else if(escolha2==1){
-                    imprimeVetor(heap,n);
-                }else{
-                    printf("Escolha invalida. Retornando ao MENU.\n");
-                }
-            }            
+                free(heap);  
+            }               
         }else if(escolha==3){ /* se a lista heap estiver preenchida, busca os dados destas cidades */
-            if(heap == NULL){ /* deveria-se usar nome na n_nome e obter cod_ibge e dai utilizar este na tarefa 2 para conseguir os dados */
-                printf("Nao ha vizinhos salvos na memoria. Retornando ao MENU.\n");
-            }else{
-                for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
-                    imprime_municipio(hash_busca(&h_ibge, heap[k].key));
-                    printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
-                }
-            }
-        }else if(escolha==4){
             printf("Digite o nome a ser buscado: ");
             scanf(" %[^\n]", leitura);
-            buscando = hash_busca(&h_nome, leitura);
-            if(buscando == NULL) printf("Codigo nao encontrado na hash.\n");            
-            else imprime_municipio(buscando);
-        }else if(escolha != 0){
+            qtd = qtd_ocorrencias_hash(&h_nome, leitura);
+            if(qtd<1){
+                printf("Nome nao encontrado na hash. Retornando ao MENU.\n");
+            }else if(qtd==1){ // nao ha nomes repetidos
+                buscando = hash_busca(&h_nome, leitura);
+                buscando = hash_busca(&h_ibge, buscando->codigo_ibge);
+                while(1){
+                    printf("Digite o numero n de vizinhos a serem buscados(0 para sair): ");                
+                    if(scanf("%d", &n) != 1) {
+                        printf("Entrada invalida! Digite novamente.\n");
+                        while (getchar() != '\n');   
+                        continue;                 
+                    }
+                    if(n==0) break;
+                    heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
+                    buscaVizinhos(&arv, &h_ibge, heap, buscando, n);
+                    for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
+                        imprime_municipio(hash_busca(&h_ibge, heap[k].key));
+                        printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
+                    }
+                    free(heap);
+                }
+            }else if(qtd>1){
+                vetorMunicipio = malloc(qtd*sizeof(tmunicipio));
+                hash_busca_ate_0(&h_nome, vetorMunicipio, leitura, qtd, sizeof(tmunicipio));
+                printf("Existe repeticao de %s %d vezes.\n", vetorMunicipio[0].nome, qtd);
+                while(1){                        
+                    printf("| opcao | cod_ibge | ddd | fuso_horario\n");
+                    for(i=0;i<qtd;i++){                    
+                        printf("|   %d   |  %s |  %d | %s\n", i+1, vetorMunicipio[i].codigo_ibge, vetorMunicipio[i].ddd, vetorMunicipio[i].fuso_horario);
+                    }
+                    printf("Escolha(0 para sair): ");
+                    while(1){                        
+                        if(scanf(" %d", &escolha2) != 1 || escolha2>qtd || escolha2<0) {
+                            printf("Entrada invalida! Digite novamente: ");   
+                            while (getchar() != '\n');     
+                            continue;            
+                        }
+                        if(escolha2 == 0) break;
+                        printf("Digite o numero n de vizinhos a serem buscados: ");                        
+                        if(scanf(" %d", &n) != 1|| n<0) {
+                            printf("Entrada invalida! ");  
+                            while (getchar() != '\n');
+                            break;
+                        }
+                        
+                        heap = malloc((n+1)*sizeof(theap)); // n vizinhos + cidade buscada
+                        buscaVizinhos(&arv, &h_ibge, heap, &vetorMunicipio[escolha2-1], n);
+                        for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
+                            imprime_municipio(hash_busca(&h_ibge, heap[k].key));
+                            printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
+                        }
+                        free(heap);                        
+                        break;
+                    }
+                    if(escolha2==0) break;
+                }
+                free(vetorMunicipio);
+            }                        
+        }else if(escolha==0){
+            break;
+        }else {
             printf("Escolha invalida, digite novamente.\n");
         }
     }
@@ -134,7 +178,6 @@ int main(){
     printf("Hash_ibge apagado.\n");
     free(h_nome.table); // utilizar hash_apaga causava problema de double free()
     printf("Hash_nome apagado.\n");
-    if(heap!=NULL) free(heap);
     return EXIT_SUCCESS;
 }
 
@@ -280,8 +323,8 @@ void buscaVizinhos(tarv *arv, thash *h, theap *heap, tmunicipio *reg, int n){
    uma heap com n+1 posicoes */
 void imprimeVetor(theap heap[], int n){
     printf("Cidade Selecionada: %s.\n", heap[0].key);
-    printf("|  | Distancia  | cod_ibge\n");
+    printf("|   | Distancia  |  cod_ibge\n");
     for(int i = 1; i<n+1; i++){ //i==0 esta a propria cidade
-        printf("|%2.d| %f   | %s\n",i, sqrtf(heap[i].distancia2), heap[i].key);
+        printf("|%2.d |  %f  | %s\n",i, sqrtf(heap[i].distancia2), heap[i].key);
     }
 }

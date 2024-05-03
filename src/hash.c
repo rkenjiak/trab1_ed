@@ -88,22 +88,37 @@ void * hash_busca(thash  *h, const char * key){
     return ret;
 }
 
-void * hash_busca_ate_0(thash  *h, const char * key){ ///////////////////////////
+int qtd_ocorrencias_hash(thash  *h, const char * key){
     int j = 0;
     uint32_t hash = hashf(key,SEED);
     uint32_t hash2 = hashf2(key);
     int pos = hash %(h->max);
-    void * ret = NULL;
-    while(h->table[pos]!=0 && ret == NULL){
+    int ret = 0;
+    while(h->table[pos]!=0){
         void *bucket = (void *)h->table[pos];
         if (strcmp(h->get_key(bucket),key) == 0){
-            ret = bucket;
-        }else{
-            j++;
-            pos = (hash+j*hash2) % h->max;
+            ret += 1;            
         }
+        j++;
+        pos = (hash+j*hash2) % h->max;
     }
     return ret;
+}
+
+void hash_busca_ate_0(thash  *h, void *lista, const char *key, int repeticoes, size_t tamanho_dados){ ///////////////////////////
+    int i = 0,j = 0;
+    uint32_t hash = hashf(key,SEED);
+    uint32_t hash2 = hashf2(key);
+    int pos = hash %(h->max);    
+    while(h->table[pos]!=0 && i<repeticoes){
+        void *bucket = (void *)h->table[pos];        
+        if (strcmp(h->get_key(bucket),key) == 0){
+            memcpy(lista+i*tamanho_dados, bucket, tamanho_dados);
+            i++;
+        }        
+        j++;
+        pos = (hash+j*hash2) % h->max;        
+    }
 }
 
 int hash_remove(thash * h, const char * key){
