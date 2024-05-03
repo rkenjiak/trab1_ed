@@ -20,6 +20,7 @@ tnode* newNode(void* reg){
     return temp;
 }
 
+/* percorre alternando as comparacoes ate chegar em um NULL */
 int abb_insere_node(tarv *parv,tnode **ppnode,void *reg, int depth){
 	int dim = depth % 2;
     if (*ppnode == NULL){
@@ -45,7 +46,8 @@ int abb_insere(tarv *parv,  void *reg, int depth){
     return abb_insere_node(parv,&parv->raiz,reg, depth);
 }
 
-
+/* percorre até a folha, calcula a distancia e compara com a max heap, se for menor insere
+   antes de subir verifica se a subarvore que não foi percorrida tem chance de ser vizinho proximo*/
 void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth, int tam){
 	if(pnode == NULL) return;
 	int dim = depth % 2;
@@ -70,7 +72,7 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
 		strcpy(new.key,parv->get_key(pnode->reg));
 		altera_prioridade(heap,tam,0,new);
 	}
-	if(dim == 1 && currentDist>pow(parv->cmpy(pnode->reg,reg),2)){  ///possivel bug pois utiliza-se dist^2
+	if(dim == 1 && currentDist>pow(parv->cmpy(pnode->reg,reg),2)){
 		if (parv->cmpx((pnode)->reg,reg) > 0){ /* esquerda, oposto */
             nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
         }else{ /* direita, oposto */
@@ -88,9 +90,6 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
 void nearNeighbor(tarv *parv, theap *heap,  void *reg, int depth, int tam){
     return nearNeighbor_node(parv, parv->raiz, heap, reg, depth, tam);
 }
-
-
-///////////////////////////////////////////////////////
 
 void troca(theap *a, theap *b) {
 	theap aux = *a;
@@ -110,7 +109,7 @@ int filho_dir(int n) {
 	return (n * 2) + 2;
 }
 
-void desce(theap v[], int tam, int n) {//////////////////////////
+void desce(theap v[], int tam, int n) {
 	int maior = n;
 	int esq = filho_esq(n);
 	int dir = filho_dir(n);
@@ -135,7 +134,7 @@ void constroi_heap(theap v[], int tam) {
 void sobe(theap v[], int n) {
 	int p = pai(n);
 
-	if (v[p].distancia2 < v[n].distancia2) {/////////////////////////
+	if (v[p].distancia2 < v[n].distancia2) {
 		troca(&v[n], &v[p]);
 		sobe(v, p);
 	}
@@ -149,7 +148,7 @@ theap extrai_raiz(theap v[], int *tam) {
 	return max;
 }
 
-void altera_prioridade(theap *v, int tam, int n, theap new) { // ?
+void altera_prioridade(theap *v, int tam, int n, theap new) {
 	theap anterior = v[n];
 	v[n] = new;
 
@@ -165,8 +164,6 @@ void heap_sort(theap v[], int tam) {
 		desce(v, i, 0);
 	}
 }
-
-////////////////////////////////////////////////////////
 
 void abb_apaga(tnode *node){
     if (node == NULL) return;

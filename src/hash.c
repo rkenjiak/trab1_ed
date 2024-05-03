@@ -31,7 +31,6 @@ uint32_t hashf2(const char* data) { //fnv1a_hash
     return hash;
 }
 
-
 int hash_insere(thash * h, void * bucket, int *cont){
     int j = 0;
     uint32_t hash = hashf(h->get_key(bucket),SEED);
@@ -55,8 +54,6 @@ int hash_insere(thash * h, void * bucket, int *cont){
     return EXIT_SUCCESS;
 }
 
-
-
 int hash_constroi(thash * h,int nbuckets, char * (*get_key)(void *) ){
     h->table = calloc(sizeof(void *),nbuckets + 1);
     if (h->table == NULL){
@@ -69,7 +66,7 @@ int hash_constroi(thash * h,int nbuckets, char * (*get_key)(void *) ){
     return EXIT_SUCCESS;
 }
 
-
+/* retorna um *tmunicipio, se achar, NULL caso contrario */
 void * hash_busca(thash  *h, const char * key){
     int j = 0;
     uint32_t hash = hashf(key,SEED);
@@ -88,6 +85,7 @@ void * hash_busca(thash  *h, const char * key){
     return ret;
 }
 
+/* descobre a qtd de repeticoes  */
 int qtd_ocorrencias_hash(thash  *h, const char * key){
     int j = 0;
     uint32_t hash = hashf(key,SEED);
@@ -105,7 +103,8 @@ int qtd_ocorrencias_hash(thash  *h, const char * key){
     return ret;
 }
 
-void hash_busca_ate_0(thash  *h, void *lista, const char *key, int repeticoes, size_t tamanho_dados){ ///////////////////////////
+/* insere tmunicipio na lista, sabendo a qtd */
+void hash_busca_ate_0(thash  *h, void *lista, const char *key, int repeticoes, size_t tamanho_dados){ 
     int i = 0,j = 0;
     uint32_t hash = hashf(key,SEED);
     uint32_t hash2 = hashf2(key);
