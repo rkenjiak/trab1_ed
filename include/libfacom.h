@@ -26,7 +26,7 @@ typedef struct _abb{ // 2 dimensoes
     char *(*get_key)(void *);
 }tarv;
 
- /* heap para kdtree 2d */
+ /* heap para n vizinhos na kdtree 2d */
 typedef struct _heap{
     char key[20];
     float distancia2;

@@ -51,19 +51,15 @@ int abb_insere(tarv *parv,  void *reg, int depth){
 void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth, int tam){
 	if(pnode == NULL) return;
 	int dim = depth % 2;
+		
 	if(dim == 0){
-		if (parv->cmpy((pnode)->reg,reg) > 0){ /* esquerda*/
-            nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);
-        }else{ /*direita*/
-            nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
-        }
+		if (parv->cmpy((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);/* esquerda*/
+        else nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam); /*direita*/         
 	}else if (dim == 1){ //comparar longitude
-        if (parv->cmpx((pnode)->reg,reg) > 0){ /* esquerda*/
-            nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);
-        }else{ /*direita*/
-            nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
-        }
-	}
+        if (parv->cmpx((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam); /* esquerda*/
+        else nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam); /*direita*/         
+	}	
+
 	float currentDist = parv->distancia2(pnode->reg,reg);
 	float bestDist = heap[0].distancia2;
 	if(currentDist<bestDist){
@@ -72,19 +68,14 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
 		strcpy(new.key,parv->get_key(pnode->reg));
 		altera_prioridade(heap,tam,0,new);
 	}
-	if(dim == 1 && currentDist>pow(parv->cmpy(pnode->reg,reg),2)){
-		if (parv->cmpx((pnode)->reg,reg) > 0){ /* esquerda, oposto */
-            nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
-        }else{ /* direita, oposto */
-            nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);
-        }
-	}else if(dim == 0 && currentDist>pow(parv->cmpx(pnode->reg,reg),2)){
-		if (parv->cmpy((pnode)->reg,reg) > 0){ /* esquerda, oposto */
-            nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);
-        }else{ /* direita, oposto*/
-            nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam);
-        }
-	}
+
+	if(dim == 1 && currentDist>=pow(parv->cmpy(pnode->reg,reg),2)){
+		if (parv->cmpx((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam); /* esquerda, oposto */
+        else nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam); /* direita, oposto */        
+	}else if(dim == 0 && currentDist>=pow(parv->cmpx(pnode->reg,reg),2)){
+		if (parv->cmpy((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);/* esquerda, oposto */
+        else nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam); /* direita, oposto*/    
+	}	
 }
 
 void nearNeighbor(tarv *parv, theap *heap,  void *reg, int depth, int tam){
