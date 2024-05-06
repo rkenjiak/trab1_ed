@@ -127,6 +127,7 @@ int main(){
                     buscaVizinhos(&arv, &h_ibge, heap, buscando, n);
                     for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
                         imprime_municipio(hash_busca(&h_ibge, heap[k].key));
+                        if(*(heap[k].key)!='\0')
                         printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
                     }
                     free(heap);
@@ -159,6 +160,7 @@ int main(){
                         buscaVizinhos(&arv, &h_ibge, heap, &vetorMunicipio[escolha2-1], n);
                         for(int k=1;k<n+1;k++){// k==0 é a propria cidade  
                             imprime_municipio(hash_busca(&h_ibge, heap[k].key));
+                            if(*(heap[k].key)!='\0')
                             printf("| distancia    | %f\n\n", sqrtf(heap[k].distancia2));
                         }
                         free(heap);                        
@@ -334,15 +336,19 @@ void *aloca_municipio(char *codigo_ibge, char *nome, float latitude, float longi
 }
 
 void imprime_municipio(tmunicipio *municipio){    
-    printf("| codigo_ibge  | %s\n", municipio->codigo_ibge);
-    printf("| nome         | %s\n", municipio->nome);
-    printf("| latitude     | %.4f\n", municipio->latitude);
-    printf("| longitude    | %.4f\n", municipio->longitude);
-    printf("| capital      | %d\n", municipio->capital);
-    printf("| codigo_uf    | %d\n", municipio->codigo_uf);
-    printf("| siafi_id     | %d\n", municipio->siafi_id);
-    printf("| ddd          | %d\n", municipio->ddd);
-    printf("| fuso_horario | %s\n", municipio->fuso_horario);        
+    if(municipio!= NULL){
+        printf("| codigo_ibge  | %s\n", municipio->codigo_ibge);
+        printf("| nome         | %s\n", municipio->nome);
+        printf("| latitude     | %.4f\n", municipio->latitude);
+        printf("| longitude    | %.4f\n", municipio->longitude);
+        printf("| capital      | %d\n", municipio->capital);
+        printf("| codigo_uf    | %d\n", municipio->codigo_uf);
+        printf("| siafi_id     | %d\n", municipio->siafi_id);
+        printf("| ddd          | %d\n", municipio->ddd);
+        printf("| fuso_horario | %s\n", municipio->fuso_horario);        
+    } else{
+        return;
+    }
 }
 
 /* busca os n vizinhos e guarda o resultado em um vetor de n+1 posicoes, em ordem crescente de distancia,
@@ -362,6 +368,7 @@ void imprimeVetor(theap heap[], int n){
     printf("| Cidade Selecionada: %s.\n", heap[0].key);
     printf("|   | Distancia  | cod_ibge\n");
     for(int i = 1; i<n+1; i++){ //i==0 esta a propria cidade
+        if(*(heap[i].key)!='\0')
         printf("|%2.d |  %f  |  %s\n",i, sqrtf(heap[i].distancia2), heap[i].key);
     }
 }
