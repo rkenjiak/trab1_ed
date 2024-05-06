@@ -4,6 +4,9 @@ gcc .\src\main.c .\src\hash.c .\src\abb_kd.c -lm -o <executavel>
 ```
 Exemplo: 
 ```
+gcc ./src/main.c ./src/hash.c ./src/abb_kd.c -lm -o saida
+```
+```
 gcc .\src\main.c .\src\hash.c .\src\abb_kd.c -lm -o saida
 ```
 
