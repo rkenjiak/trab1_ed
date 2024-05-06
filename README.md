@@ -1,11 +1,9 @@
 ## Para compilar diretamente quando estiver em ~/trab1_ed/
-```
-gcc .\src\main.c .\src\hash.c .\src\abb_kd.c -lm -o <executavel>
-```
-Exemplo: 
+Linux: 
 ```
 gcc ./src/main.c ./src/hash.c ./src/abb_kd.c -lm -o saida
 ```
+Windows:
 ```
 gcc .\src\main.c .\src\hash.c .\src\abb_kd.c -lm -o saida
 ```
