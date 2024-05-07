@@ -69,10 +69,10 @@ void nearNeighbor_node(tarv *parv,tnode *pnode, theap *heap,void *reg, int depth
 		altera_prioridade(heap,tam,0,new);
 	}
 
-	if(dim == 1 && currentDist>=pow(parv->cmpy(pnode->reg,reg),2)){
+	if(dim == 1 && bestDist>=pow(parv->cmpx(pnode->reg,reg),2)){
 		if (parv->cmpx((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam); /* esquerda, oposto */
         else nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam); /* direita, oposto */        
-	}else if(dim == 0 && currentDist>=pow(parv->cmpx(pnode->reg,reg),2)){
+	}else if(dim == 0 && bestDist>=pow(parv->cmpy(pnode->reg,reg),2)){
 		if (parv->cmpy((pnode)->reg,reg) > 0) nearNeighbor_node(parv,((pnode)->dir),heap,reg,depth+1,tam);/* esquerda, oposto */
         else nearNeighbor_node(parv,((pnode)->esq),heap,reg,depth+1,tam); /* direita, oposto*/    
 	}	
